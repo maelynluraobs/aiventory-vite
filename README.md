@@ -13,8 +13,9 @@ If you are developing a production application, we recommend using TypeScript wi
 
 
 run: 
-npm install 
-npm run dev 
+
+- npm install 
+- npm run dev 
 
 test backend 
 1. use postman

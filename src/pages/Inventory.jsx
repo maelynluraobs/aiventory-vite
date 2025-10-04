@@ -63,8 +63,7 @@ export default function Inventory() {
     category: '',
     stock: '',
     threshold: '',
-    price: '',
-    status: 'Good'
+    price: ''
   });
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState('');
@@ -81,8 +80,8 @@ export default function Inventory() {
           sku: p.Product_sku,
           category: p.Product_category,
           stock: p.Product_stock,
-          threshold: p.Product_threshold,
-          status: p.Product_status
+          threshold: p.reorder_level,
+          status: p.Product_status || 'Active'
         }));
         setInventory(formatted);
       })
@@ -105,12 +104,11 @@ export default function Inventory() {
         category: item.category,
         stock: item.stock,
         threshold: item.threshold,
-        price: item.price || '',
-        status: item.status
+        price: item.price || ''
       });
       setEditIndex(idx);
     } else {
-      setForm({ name: '', sku: '', category: '', stock: '', threshold: '', price: '', status: 'Good' });
+      setForm({ name: '', sku: '', category: '', stock: '', threshold: '', price: '' });
       setEditIndex(null);
     }
     setModalOpen(true);
@@ -118,7 +116,7 @@ export default function Inventory() {
 
   const handleCloseModal = () => {
     setModalOpen(false);
-    setForm({ name: '', sku: '', category: '', stock: '', threshold: '', status: 'Good' });
+    setForm({ name: '', sku: '', category: '', stock: '', threshold: '', price: '' });
     setEditIndex(null);
   };
 
@@ -129,7 +127,7 @@ export default function Inventory() {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.sku || !form.category || form.stock === '' || form.threshold === '' || !form.status) return;
+    if (!form.name || !form.sku || !form.category || form.stock === '' || form.threshold === '') return;
 
     const newItem = {
       Product_name: form.name,
@@ -137,10 +135,9 @@ export default function Inventory() {
       Product_price: Number(form.price) || 0,
       Product_category: form.category,
       reorder_level: Number(form.threshold),
-      supplier_id: null,
+      supplier_id: 1, // Set default supplier_id to avoid null constraint
       Product_stock: Number(form.stock),
-      Product_threshold: Number(form.threshold),
-      Product_status: form.status
+      Product_status: 'Active' // Set default status
     };
 
     try {
@@ -154,8 +151,8 @@ export default function Inventory() {
           sku: p.Product_sku,
           category: p.Product_category,
           stock: p.Product_stock,
-          threshold: p.Product_threshold,
-          status: p.Product_status
+          threshold: p.reorder_level,
+          status: p.Product_status || 'Active'
         })));
         setSnackbarMsg("Item updated successfully!");
       } else {
@@ -193,8 +190,8 @@ export default function Inventory() {
           sku: p.Product_sku,
           category: p.Product_category,
           stock: p.Product_stock,
-          threshold: p.Product_threshold,
-          status: p.Product_status
+          threshold: p.reorder_level,
+          status: p.Product_status || 'Active'
         })));
         setSnackbarMsg("Item deleted successfully!");
       } catch (err) {
@@ -313,14 +310,6 @@ export default function Inventory() {
                 </FormControl>
                 <TextField label="Current Stock" name="stock" type="number" value={form.stock} onChange={handleFormChange} required inputProps={{ min: 0 }} fullWidth />
                 <TextField label="Threshold" name="threshold" type="number" value={form.threshold} onChange={handleFormChange} required inputProps={{ min: 0 }} fullWidth />
-                <FormControl fullWidth required>
-                  <InputLabel>Status</InputLabel>
-                  <Select name="status" value={form.status} onChange={handleFormChange}>
-                    <MenuItem value="Good">Good</MenuItem>
-                    <MenuItem value="Warning">Warning</MenuItem>
-                    <MenuItem value="At Risk">At Risk</MenuItem>
-                  </Select>
-                </FormControl>
               </Stack>
               <DialogActions sx={{ mt: 2 }}>
                 <Button onClick={handleCloseModal}>Cancel</Button>

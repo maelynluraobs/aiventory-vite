@@ -8,6 +8,17 @@ const Login = () => {
   const [showCreateAccount, setShowCreateAccount] = useState(false);
   const [role, setRole] = useState('Admin');
   const [newRole, setNewRole] = useState('Admin');
+  
+  // Login form state
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  
+  // Registration form state
+  const [fullName, setFullName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  
   const navigate = useNavigate();
 
   const handleShowCreateAccount = (e) => {
@@ -23,66 +34,70 @@ const Login = () => {
   
   
   const handleLoginSubmit = async (e) => {
-  e.preventDefault();
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  try {
-    const res = await axios.post("http://localhost:5000/api/login", {
-      email,
-      password,
-      role
-    });
-
-    localStorage.setItem("token", res.data.token);
-    localStorage.setItem("role", res.data.role);
-
-    navigate("/dashboard");
-  } catch (err) {
-    alert(err.response?.data?.error || "Login failed");
-  }
-};
-
-const handleCreateAccountSubmit = async (e) => {
-  e.preventDefault();
-  const fullName = document.getElementById("newFullName").value;
-  const email = document.getElementById("newEmail").value;
-  const password = document.getElementById("newPassword").value;
-  const confirmPassword = document.getElementById("confirmPassword").value;
-
-  if (password !== confirmPassword) {
-    alert("Passwords do not match!");
-    return;
-  }
-
-  try {
-    const res = await axios.post("http://localhost:5000/api/register", {
-      fullName,
-      email,
-      password,
-      role: newRole
-    });
-
-    alert(res.data.message + "\nPlease login with your new account.");
+    e.preventDefault();
     
-    // Clear the registration form
-    document.getElementById("newFullName").value = "";
-    document.getElementById("newEmail").value = "";
-    document.getElementById("newPassword").value = "";
-    document.getElementById("confirmPassword").value = "";
+    if (!loginEmail || !loginPassword) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    try {
+      const res = await axios.post("http://localhost:5000/api/login", {
+        email: loginEmail,
+        password: loginPassword,
+        role
+      });
+
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("role", res.data.role);
+
+      navigate("/dashboard");
+    } catch (err) {
+      alert(err.response?.data?.error || "Login failed");
+    }
+  };
+
+  const handleCreateAccountSubmit = async (e) => {
+    e.preventDefault();
     
-    // Switch back to login form
-    setShowCreateAccount(false);
-    
-    // Pre-fill the login form with the new account details
-    document.getElementById("email").value = email;
-    document.getElementById("password").value = password;
-    setRole(newRole);
-    
-  } catch (err) {
-    alert(err.response?.data?.error || "Registration failed");
-  }
-};
+    if (!fullName || !regEmail || !regPassword || !confirmPassword) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    if (regPassword !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    try {
+      const res = await axios.post("http://localhost:5000/api/register", {
+        fullName,
+        email: regEmail,
+        password: regPassword,
+        role: newRole
+      });
+
+      alert(res.data.message + "\nPlease login with your new account.");
+      
+      // Clear the registration form
+      setFullName("");
+      setRegEmail("");
+      setRegPassword("");
+      setConfirmPassword("");
+      
+      // Switch back to login form
+      setShowCreateAccount(false);
+      
+      // Pre-fill the login form with the new account details
+      setLoginEmail(regEmail);
+      setLoginPassword(regPassword);
+      setRole(newRole);
+      
+    } catch (err) {
+      alert(err.response?.data?.error || "Registration failed");
+    }
+  };
 
 
 
@@ -97,11 +112,23 @@ const handleCreateAccountSubmit = async (e) => {
         <form className="login-form" onSubmit={handleLoginSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email</label>
-            <input type="email" id="email" required />
+            <input 
+              type="email" 
+              id="email" 
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+              required 
+            />
           </div>
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input type="password" id="password" required />
+            <input 
+              type="password" 
+              id="password" 
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              required 
+            />
           </div>
           <div className="role-toggle">
             <button
@@ -131,19 +158,43 @@ const handleCreateAccountSubmit = async (e) => {
         <form className="login-form" onSubmit={handleCreateAccountSubmit}>
           <div className="form-group">
             <label htmlFor="newFullName">Full Name</label>
-            <input type="text" id="newFullName" required />
+            <input 
+              type="text" 
+              id="newFullName" 
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required 
+            />
           </div>
           <div className="form-group">
             <label htmlFor="newEmail">Email</label>
-            <input type="email" id="newEmail" required />
+            <input 
+              type="email" 
+              id="newEmail" 
+              value={regEmail}
+              onChange={(e) => setRegEmail(e.target.value)}
+              required 
+            />
           </div>
           <div className="form-group">
             <label htmlFor="newPassword">Password</label>
-            <input type="password" id="newPassword" required />
+            <input 
+              type="password" 
+              id="newPassword" 
+              value={regPassword}
+              onChange={(e) => setRegPassword(e.target.value)}
+              required 
+            />
           </div>
           <div className="form-group">
             <label htmlFor="confirmPassword">Confirm Password</label>
-            <input type="password" id="confirmPassword" required />
+            <input 
+              type="password" 
+              id="confirmPassword" 
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required 
+            />
           </div>
           <div className="role-toggle">
             <button

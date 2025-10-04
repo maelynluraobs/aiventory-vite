@@ -575,6 +575,36 @@ app.get("/api/reports/monthly-orders", (req, res) => {
 
 // ===================== REPORTS & ANALYTICS =========================
 
+
+// ===================== SETTINGS CRUD API =====================
+app.get("/api/settings/:staff_id", (req, res) => {
+  const { staff_id } = req.params;
+  db.query("SELECT * FROM settings WHERE staff_id = ?", [staff_id], (err, results) => {
+    if (err) return res.status(500).json({ error: "Database error" });
+    if (results.length === 0)
+      return res.json({
+        notification_threshold: 10,
+        reorder_rule: "default",
+        staff_id,
+      });
+    res.json(results[0]);
+  });
+});
+
+app.post("/api/settings", (req, res) => {
+  const { notification_threshold, reorder_rule, staff_id } = req.body;
+  db.query(
+    "INSERT INTO settings (notification_threshold, reorder_rule, staff_id) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE notification_threshold=?, reorder_rule=?",
+    [notification_threshold, reorder_rule, staff_id, notification_threshold, reorder_rule],
+    (err) => {
+      if (err) return res.status(500).json({ error: "Error saving settings" });
+      res.json({ success: true, message: "Settings saved successfully" });
+    }
+  );
+});
+
+// ===================== SETTINGS CRUD API =====================
+
 // ===================== ML | PREDICT STOCK =========================
 
 app.get("/api/predict/:productId", (req, res) => {
@@ -597,6 +627,10 @@ app.get("/api/predict/:productId", (req, res) => {
 
 
 // ===================== PREDICT STOCK =========================
+
+
+
+
 // ------------------ START SERVER ------------------
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Backend running on http://localhost:${PORT}`));

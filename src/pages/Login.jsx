@@ -63,17 +63,22 @@ const handleCreateAccountSubmit = async (e) => {
       role: newRole
     });
 
-    alert(res.data.message);
-    // Auto-login after registration
-    // Use the same login API to get token
-    const loginRes = await axios.post("http://localhost:5000/api/login", {
-      email,
-      password,
-      role: newRole
-    });
-    localStorage.setItem("token", loginRes.data.token);
-    localStorage.setItem("role", loginRes.data.role);
-    navigate("/dashboard");
+    alert(res.data.message + "\nPlease login with your new account.");
+    
+    // Clear the registration form
+    document.getElementById("newFullName").value = "";
+    document.getElementById("newEmail").value = "";
+    document.getElementById("newPassword").value = "";
+    document.getElementById("confirmPassword").value = "";
+    
+    // Switch back to login form
+    setShowCreateAccount(false);
+    
+    // Pre-fill the login form with the new account details
+    document.getElementById("email").value = email;
+    document.getElementById("password").value = password;
+    setRole(newRole);
+    
   } catch (err) {
     alert(err.response?.data?.error || "Registration failed");
   }
